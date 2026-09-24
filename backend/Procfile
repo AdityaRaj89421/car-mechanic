@@ -1,0 +1,4 @@
+# Procfile — used by Heroku-style hosts; also documents the production run command.
+# For AWS EC2 / systemd, see scripts/ec2_bootstrap.sh and scripts/carmechanic.service.
+
+web: gunicorn carmechanic.wsgi --bind 0.0.0.0:$PORT --workers 3 --timeout 120

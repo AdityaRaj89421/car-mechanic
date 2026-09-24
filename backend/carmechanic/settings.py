@@ -1,5 +1,6 @@
 """
 Django settings for carmechanic project.
+Supports local dev (DEBUG=True) and production (DEBUG=False) via environment variables.
 """
 
 import os
@@ -12,7 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-dev-key-change-in-production")
 
-DEBUG = True
+# ── Debug ────────────────────────────────────────────────────────────────────
+# Set DEBUG=False in production via the environment variable.
+DEBUG = os.getenv("DEBUG", "True").strip().lower() in ("true", "1", "yes")
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
@@ -26,6 +29,7 @@ INSTALLED_APPS = [
     # Third-party
     "rest_framework",
     "corsheaders",
+    "whitenoise.runserver_nostatic",  # serves static in dev too (consistent behaviour)
     # Local
     "chatbot",
 ]
@@ -33,6 +37,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",  # Must be before CommonMiddleware
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Serve static files efficiently
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -81,11 +86,34 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"  # collectstatic output dir
+# WhiteNoise compressed manifest storage for production
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    if not DEBUG
+    else "django.contrib.staticfiles.storage.StaticFilesStorage"
+)
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ── HTTPS / Security headers (production only) ─────────────────────────────────
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # Set SECURE_SSL_REDIRECT=False if nginx handles the redirect (avoids redirect loops)
+    SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "True").lower() in ("true", "1")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    # Allow the Vercel frontend to send CSRF-safe cross-origin requests
+    _csrf_raw = os.getenv("FRONTEND_ORIGIN", "")
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_raw.split(",") if o.strip()]
+
 
 # ── CORS ────────────────────────────────────────────────────────────────────
 # CORS_ALLOWED_ORIGINS accepts a comma-separated list so multiple dev/prod
