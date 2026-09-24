@@ -7,9 +7,10 @@
  * chat input, booking modal, and empty state.
  */
 
-import { useState } from "react";
-import { AlertCircle, Car, RefreshCw, Wrench, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { AlertCircle, Car, RefreshCw, Wrench, X, WifiOff } from "lucide-react";
 
+import { checkHealth } from "@/lib/api";
 import { useChat } from "@/hooks/useChat";
 import { MessageBubble } from "./MessageBubble";
 import { DiagnosisCard } from "./DiagnosisCard";
@@ -20,6 +21,14 @@ export function ChatShell() {
   const { state, bottomRef, sendText, upload, openBooking, closeBooking, clearError, reset } =
     useChat();
   const [inputValue, setInputValue] = useState("");
+  const [backendDown, setBackendDown] = useState(false);
+
+  // Check backend connectivity once on mount
+  useEffect(() => {
+    checkHealth().then((ok) => setBackendDown(!ok));
+  }, []);
+
+  const retryHealth = () => checkHealth().then((ok) => setBackendDown(!ok));
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
@@ -59,6 +68,30 @@ export function ChatShell() {
           </button>
         </div>
       </header>
+
+      {/* ── Backend down banner ──────────────────────────────────────────── */}
+      {backendDown && (
+        <div className="flex items-start gap-3 mx-4 mt-3 px-4 py-3 rounded-xl bg-orange-950/60 border border-orange-500/30 flex-shrink-0">
+          <WifiOff className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm text-orange-300 font-medium">Backend unavailable</p>
+            <p className="text-xs text-orange-400/70 mt-0.5">
+              Cannot reach the server at{" "}
+              <code className="bg-orange-950/60 px-1 rounded">
+                {process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000"}
+              </code>
+              . Start the Django backend and retry.
+            </p>
+          </div>
+          <button
+            onClick={retryHealth}
+            className="flex items-center gap-1 text-xs text-orange-300 hover:text-orange-200 bg-orange-900/40 hover:bg-orange-900/60 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer flex-shrink-0"
+          >
+            <RefreshCw className="w-3 h-3" />
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* ── Error banner ────────────────────────────────────────────────── */}
       {state.error && (

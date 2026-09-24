@@ -88,8 +88,21 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ── CORS ────────────────────────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS = [
-    os.getenv("FRONTEND_ORIGIN", "http://localhost:3000"),
+# CORS_ALLOWED_ORIGINS accepts a comma-separated list so multiple dev/prod
+# origins can be configured without code changes.
+_cors_origins_raw = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins_raw.split(",") if o.strip()]
+
+# Headers the browser is allowed to read from responses
+CORS_EXPOSE_HEADERS = ["Content-Disposition", "Content-Length"]
+
+# Headers the browser is allowed to send in cross-origin requests
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "x-csrftoken",
+    "x-requested-with",
 ]
 
 # ── Django REST Framework ────────────────────────────────────────────────────

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-import { createBooking } from "@/services/api";
+import { createBooking } from "@/lib/api";
 import type { BookingData, BookingErrors, DiagnosisData } from "@/types/chat";
 
 interface Props {

@@ -10,7 +10,7 @@
  */
 
 import { useCallback, useEffect, useReducer, useRef } from "react";
-import { fetchHistory, sendMessage, uploadMedia } from "@/services/api";
+import { fetchHistory, sendMessage, uploadMedia } from "@/lib/api";
 import type { DiagnosisData, MessageData } from "@/types/chat";
 
 // ── State ─────────────────────────────────────────────────────────────────────
