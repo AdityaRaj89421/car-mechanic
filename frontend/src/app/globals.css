@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
+
 :root {
   --font-inter: "Inter", sans-serif;
 }
 
 * {
   box-sizing: border-box;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
 html,
@@ -13,6 +15,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  background: #020617; /* slate-950 */
 }
 
 /* Scrollbar styling */
@@ -20,12 +23,18 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #111827;
+  background: #0f172a;
 }
 ::-webkit-scrollbar-thumb {
-  background: #374151;
+  background: #334155;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: #475569;
+}
+
+/* Loading dots animation */
+@keyframes bounce-dot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40%            { transform: translateY(-6px); opacity: 1; }
 }

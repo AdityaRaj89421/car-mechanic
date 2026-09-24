@@ -5,12 +5,16 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "AI Car Mechanic",
+  title: "AI Car Mechanic — Powered by Gemini",
   description:
-    "Describe your car problem and get an AI-powered diagnosis and service booking.",
+    "Describe your car problem and get an AI-powered diagnosis and service booking from a senior automobile technician.",
 };
 
 export default function RootLayout({
@@ -20,7 +24,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="bg-gray-950 text-gray-100 antialiased">{children}</body>
+      <body className="bg-slate-950 text-slate-100 antialiased h-full">
+        {children}
+      </body>
     </html>
   );
 }
