@@ -171,8 +171,10 @@ print(f"  {PASS if ok else FAIL} Bad key returns error dict (not exception)")
 if not ok:
     errors.append(f"Bad key: expected status=error dict, got {result}")
 
-# Restore real key
-os.environ["GEMINI_API_KEY"] = "REDACTED_ROTATED_GEMINI_KEY"
+# Restore real key from environment (never hardcode credentials in source files)
+real_key = os.environ.get("GEMINI_API_KEY", "")
+if real_key:
+    os.environ["GEMINI_API_KEY"] = real_key
 gem_module._client = None  # reset so next call uses real key
 
 # Confirm the endpoint itself also returns 200 (not 500) with bad key
